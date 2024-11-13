@@ -12,21 +12,28 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  ScrollView, // Import ScrollView for wrapping the entire page
+  ScrollView,
 } from 'react-native';
-import { Ionicons, FontAwesome } from '@expo/vector-icons'; // Import Ionicons and FontAwesome for social media icons
+import { Ionicons, FontAwesome } from '@expo/vector-icons'; 
 
 // Get device width to scale elements dynamically
 const { width } = Dimensions.get('window');
 
 const Curbside = () => {
-  const [municipality, setMunicipality] = useState('New York'); // Default municipality
-  const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
-  const [searchQuery, setSearchQuery] = useState(''); // Track search query
+  const [municipality, setMunicipality] = useState('New York');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const municipalities = ['New York', 'Los Angeles', 'Chicago', 'San Francisco', 'Miami'];
+  const municipalities = [
+    'Miami', 'Homestead', 'Florida City', 'Miami Beach', 'Coral Gables', 'Hialeah', 
+    'North Miami', 'Opa-locka', 'Miami Springs', 'South Miami', 'Golden Beach', 
+    'North Miami Beach', 'Miami Shores', 'Biscayne Park', 'Surfside', 'El Portal', 
+    'Indian Creek Village', 'Sweetwater', 'North Bay Village', 'West Miami', 
+    'Bay Harbor Islands', 'Bal Harbour', 'Virginia Gardens', 'Hialeah Gardens', 
+    'Medley', 'Key Biscayne', 'Aventura', 'Pinecrest', 'Sunny Isles Beach', 
+    'Miami Lakes', 'Palmetto Bay', 'Miami Gardens', 'Doral', 'Cutler Bay'
+  ];
 
-  // Placeholder items
   const items = [
     { id: '1', name: 'Plastic Bottles', description: 'Empty plastic bottles for recycling.', image: 'https://via.placeholder.com/100' },
     { id: '2', name: 'Cardboard Boxes', description: 'Used cardboard boxes to be recycled.', image: 'https://via.placeholder.com/100' },
@@ -35,19 +42,16 @@ const Curbside = () => {
     { id: '5', name: 'Glass Bottles', description: 'Used glass bottles for recycling.', image: 'https://via.placeholder.com/100' },
   ];
 
-  // Function to handle item selection
   const handleSelectMunicipality = (city) => {
     setMunicipality(city);
-    setModalVisible(false); // Close the modal after selection
+    setModalVisible(false);
   };
 
-  // Filter items based on search query
   const filteredItems = items.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Render the modal item for municipality selection
   const renderMunicipalityModal = () => (
     <Modal
       animationType="slide"
@@ -63,19 +67,19 @@ const Curbside = () => {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.modalItem}
-                onPress={() => handleSelectMunicipality(item)} // Select municipality
+                onPress={() => handleSelectMunicipality(item)}
               >
                 <Text style={styles.modalItemText}>{item}</Text>
               </TouchableOpacity>
             )}
             keyExtractor={(item, index) => index.toString()}
+            style={styles.modalFlatList}
           />
         </View>
       </View>
     </Modal>
   );
 
-  // Render the item in the list
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
       <View style={styles.itemDetails}>
@@ -86,14 +90,9 @@ const Curbside = () => {
     </View>
   );
 
-  // Render the entire component
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        {/* ScrollView to wrap everything to allow scrolling */}
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={{ flex: 1 }}>
             {/* Header Section */}
@@ -104,10 +103,7 @@ const Curbside = () => {
             {/* Municipality Section */}
             <View style={styles.municipalitySection}>
               <Text style={styles.municipalityText}>You are in</Text>
-              <TouchableOpacity
-                style={styles.pickerContainer}
-                onPress={() => setModalVisible(true)} // Show modal when clicked
-              >
+              <TouchableOpacity style={styles.pickerContainer} onPress={() => setModalVisible(true)}>
                 <Text style={styles.selectedMunicipality}>{municipality}</Text>
               </TouchableOpacity>
             </View>
@@ -120,19 +116,13 @@ const Curbside = () => {
                   style={styles.searchBar}
                   placeholder="Search items..."
                   value={searchQuery}
-                  onChangeText={setSearchQuery} // Update search query
+                  onChangeText={setSearchQuery}
                 />
-                {/* Magnifying Glass Icon with Blue Circular Background */}
                 <View style={styles.searchIconContainer}>
-                  <Ionicons 
-                    name="search" 
-                    size={20} // Slightly smaller icon
-                    color="#fff"  // White color for the icon
-                  />
+                  <Ionicons name="search" size={20} color="#fff" />
                 </View>
               </View>
 
-              {/* Border Bar Between Search and Items (Light Blue) */}
               <View style={styles.borderBar} />
 
               {/* List of Items */}
@@ -146,19 +136,15 @@ const Curbside = () => {
 
             {/* Footer Section */}
             <View style={styles.footer}>
-              {/* Bottom Header Text */}
               <View style={styles.bottomHeader}>
                 <Text style={styles.bottomHeaderText}>Item not listed?</Text>
               </View>
 
-              {/* Button to Find Recycling Locations */}
               <TouchableOpacity style={styles.findButton} onPress={() => alert("Finding where to recycle...")}>
                 <Text style={styles.findButtonText}>Find where you can recycle your item</Text>
               </TouchableOpacity>
 
-              {/* Tabs Section (footer with Social Icons and Copyright) */}
               <View style={styles.tabsContainer}>
-                {/* Tab buttons */}
                 <TouchableOpacity style={styles.tab} onPress={() => alert("Items Tab Clicked")}>
                   <Text style={styles.tabText}>Items</Text>
                 </TouchableOpacity>
@@ -173,7 +159,6 @@ const Curbside = () => {
                 </TouchableOpacity>
               </View>
 
-              {/* Copyright and Social Media Icons */}
               <View style={styles.socialContainer}>
                 <Text style={styles.copyrightText}>Copyright @ 2024 Recyclepedia</Text>
                 <View style={styles.socialIcons}>
@@ -195,7 +180,6 @@ const Curbside = () => {
           </View>
         </ScrollView>
 
-        {/* Dropdown Modal */}
         {renderMunicipalityModal()}
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -210,19 +194,33 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingBottom: 20, // Add some bottom padding to make sure footer is visible
+    paddingBottom: 20,
   },
+  // Updated Header Section
   header: {
+    backgroundColor: '#234E13',
+    paddingVertical: 40,
     alignItems: 'center',
-    marginBottom: 20,
+    justifyContent: 'center',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 10,
   },
   headerTitle: {
-    fontSize: width > 400 ? 38 : 32,
-    fontWeight: '900',
-    color: '#234E13',
-    letterSpacing: 1,
+    fontSize: width > 400 ? 40 : 34,
+    fontWeight: '700',
+    color: '#fff',
+    letterSpacing: 2,
     textAlign: 'center',
     marginBottom: 10,
+    fontFamily: 'Roboto',
+    textShadowColor: '#000',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 10,
   },
   municipalitySection: {
     marginBottom: 30,
@@ -252,15 +250,17 @@ const styles = StyleSheet.create({
   },
   modalBackground: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',  // Moves the modal to the bottom to avoid the notch
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Darkened background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
-    width: '80%',
+    width: '100%',
+    maxHeight: 400,  // Limit the height of the modal container
     backgroundColor: '#fff',
     padding: 20,
-    borderRadius: 10,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
     elevation: 5,
   },
   modalTitle: {
@@ -277,6 +277,9 @@ const styles = StyleSheet.create({
   modalItemText: {
     fontSize: 18,
     textAlign: 'center',
+  },
+  modalFlatList: {
+    maxHeight: 300,  // Limit the height of the list inside the modal
   },
   panel: {
     marginTop: 20,
@@ -350,10 +353,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   itemList: {
-    maxHeight: 300, // Limit height of items list to ensure scrolling inside the panel
+    maxHeight: 300,
+  },
+  footer: {
+    marginTop: 30,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   bottomHeader: {
-    marginTop: 30,
     alignItems: 'center',
     paddingVertical: 10,
   },
@@ -369,8 +376,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 15,
     alignItems: 'center',
-    borderWidth: 2,             // Add a border width
-    borderColor: '#000',        // Set border color to black
   },
   findButtonText: {
     color: '#fff',
@@ -379,14 +384,14 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly', // Space out the tabs evenly
-    backgroundColor: '#234E13', // Green background for the entire container
+    justifyContent: 'space-evenly',
+    backgroundColor: '#234E13',
     marginTop: 20,
-    marginBottom: 20,
-    width: '100%', // Ensure the container spans full width without rounded edges
+    marginBottom: 0,
+    width: '100%',
   },
   tab: {
-    flex: 1, // Ensure each tab takes equal space
+    flex: 1,
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
