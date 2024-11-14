@@ -13,14 +13,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ImageBackground, // Import ImageBackground
 } from 'react-native';
-import { Ionicons, FontAwesome } from '@expo/vector-icons'; 
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
 // Get device width to scale elements dynamically
 const { width } = Dimensions.get('window');
 
 const Curbside = () => {
-  const [municipality, setMunicipality] = useState('New York');
+  const [municipality, setMunicipality] = useState('Click Here!');
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -92,96 +93,101 @@ const Curbside = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={{ flex: 1 }}>
-            {/* Header Section */}
-            <View style={styles.header}>
-              <Text style={styles.headerTitle}>Curbside Pickup Items</Text>
-            </View>
+      <ImageBackground
+        source={require('./curbside2.png')}
+        style={styles.backgroundImage} // Apply style to make the image cover the screen
+      >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={{ flex: 1 }}>
+              {/* Header Section */}
+              <View style={styles.header}>
+                <Text style={styles.headerTitle}>Curbside Pickup Items</Text>
+              </View>
 
-            {/* Municipality Section */}
-            <View style={styles.municipalitySection}>
-              <Text style={styles.municipalityText}>You are in</Text>
-              <TouchableOpacity style={styles.pickerContainer} onPress={() => setModalVisible(true)}>
-                <Text style={styles.selectedMunicipality}>{municipality}</Text>
-              </TouchableOpacity>
-            </View>
+              {/* Municipality Section */}
+              <View style={styles.municipalitySection}>
+                <Text style={styles.municipalityText}>You are in</Text>
+                <TouchableOpacity style={styles.pickerContainer} onPress={() => setModalVisible(true)}>
+                  <Text style={styles.selectedMunicipality}>{municipality}</Text>
+                </TouchableOpacity>
+              </View>
 
-            {/* Panel for Search and Items */}
-            <View style={styles.panel}>
-              {/* Search Bar */}
-              <View style={styles.searchContainer}>
-                <TextInput
-                  style={styles.searchBar}
-                  placeholder="Search items..."
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
+              {/* Panel for Search and Items */}
+              <View style={styles.panel}>
+                {/* Search Bar */}
+                <View style={styles.searchContainer}>
+                  <TextInput
+                    style={styles.searchBar}
+                    placeholder="Search items..."
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                  />
+                  <View style={styles.searchIconContainer}>
+                    <Ionicons name="search" size={20} color="#fff" />
+                  </View>
+                </View>
+
+                <View style={styles.borderBar} />
+
+                {/* List of Items */}
+                <FlatList
+                  data={filteredItems}
+                  renderItem={renderItem}
+                  keyExtractor={(item) => item.id}
+                  style={styles.itemList}
                 />
-                <View style={styles.searchIconContainer}>
-                  <Ionicons name="search" size={20} color="#fff" />
+              </View>
+
+              {/* Footer Section */}
+              <View style={styles.footer}>
+                <View style={styles.bottomHeader}>
+                  <Text style={styles.bottomHeaderText}>Item not listed?</Text>
                 </View>
-              </View>
 
-              <View style={styles.borderBar} />
-
-              {/* List of Items */}
-              <FlatList
-                data={filteredItems}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                style={styles.itemList}
-              />
-            </View>
-
-            {/* Footer Section */}
-            <View style={styles.footer}>
-              <View style={styles.bottomHeader}>
-                <Text style={styles.bottomHeaderText}>Item not listed?</Text>
-              </View>
-
-              <TouchableOpacity style={styles.findButton} onPress={() => alert("Finding where to recycle...")}>
-                <Text style={styles.findButtonText}>Find where you can recycle your item</Text>
-              </TouchableOpacity>
-
-              <View style={styles.tabsContainer}>
-                <TouchableOpacity style={styles.tab} onPress={() => alert("Items Tab Clicked")}>
-                  <Text style={styles.tabText}>Items</Text>
+                <TouchableOpacity style={styles.findButton} onPress={() => alert("Finding where to recycle...")}>
+                  <Text style={styles.findButtonText}>Find where you can recycle your item</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.tab} onPress={() => alert("Learn Tab Clicked")}>
-                  <Text style={styles.tabText}>Learn</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.tab} onPress={() => alert("Contact Tab Clicked")}>
-                  <Text style={styles.tabText}>Contact</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.tab} onPress={() => alert("Change Language Tab Clicked")}>
-                  <Text style={styles.tabText}>Language</Text>
-                </TouchableOpacity>
-              </View>
 
-              <View style={styles.socialContainer}>
-                <Text style={styles.copyrightText}>Copyright @ 2024 Recyclepedia</Text>
-                <View style={styles.socialIcons}>
-                  <TouchableOpacity onPress={() => alert('Facebook')}>
-                    <FontAwesome name="facebook" size={24} color="#4CAF50" style={styles.icon} />
+                <View style={styles.tabsContainer}>
+                  <TouchableOpacity style={styles.tab} onPress={() => alert("Items Tab Clicked")}>
+                    <Text style={styles.tabText}>Items</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => alert('Instagram')}>
-                    <FontAwesome name="instagram" size={24} color="#4CAF50" style={styles.icon} />
+                  <TouchableOpacity style={styles.tab} onPress={() => alert("Learn Tab Clicked")}>
+                    <Text style={styles.tabText}>Learn</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => alert('LinkedIn')}>
-                    <FontAwesome name="linkedin" size={24} color="#4CAF50" style={styles.icon} />
+                  <TouchableOpacity style={styles.tab} onPress={() => alert("Contact Tab Clicked")}>
+                    <Text style={styles.tabText}>Contact</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => alert('Twitter (X)')}>
-                    <FontAwesome name="twitter" size={24} color="#4CAF50" style={styles.icon} />
+                  <TouchableOpacity style={styles.tab} onPress={() => alert("Change Language Tab Clicked")}>
+                    <Text style={styles.tabText}>Language</Text>
                   </TouchableOpacity>
+                </View>
+
+                <View style={styles.socialContainer}>
+                  <Text style={styles.copyrightText}>Copyright @ 2024 Recyclepedia</Text>
+                  <View style={styles.socialIcons}>
+                    <TouchableOpacity onPress={() => alert('Facebook')}>
+                      <FontAwesome name="facebook" size={24} color="#4CAF50" style={styles.icon} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => alert('Instagram')}>
+                      <FontAwesome name="instagram" size={24} color="#4CAF50" style={styles.icon} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => alert('LinkedIn')}>
+                      <FontAwesome name="linkedin" size={24} color="#4CAF50" style={styles.icon} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => alert('Twitter (X)')}>
+                      <FontAwesome name="twitter" size={24} color="#4CAF50" style={styles.icon} />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
-        </ScrollView>
+          </ScrollView>
 
-        {renderMunicipalityModal()}
-      </KeyboardAvoidingView>
+          {renderMunicipalityModal()}
+        </KeyboardAvoidingView>
+      </ImageBackground>
     </SafeAreaView>
   );
 };
@@ -190,13 +196,17 @@ const Curbside = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f0f5',
+    backgroundColor: 'transparent', // Set the background as transparent because ImageBackground will cover the screen
   },
   scrollContainer: {
     flexGrow: 1,
     paddingBottom: 20,
   },
-  // Updated Header Section
+  backgroundImage: {
+    flex: 1, // Ensure the image covers the entire screen
+    justifyContent: 'center', // Center the content vertically
+    alignItems: 'center', // Center the content horizontally
+  },
   header: {
     backgroundColor: '#234E13',
     paddingVertical: 40,
@@ -250,13 +260,13 @@ const styles = StyleSheet.create({
   },
   modalBackground: {
     flex: 1,
-    justifyContent: 'flex-end',  // Moves the modal to the bottom to avoid the notch
+    justifyContent: 'flex-end',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
     width: '100%',
-    maxHeight: 400,  // Limit the height of the modal container
+    maxHeight: 400,
     backgroundColor: '#fff',
     padding: 20,
     borderTopLeftRadius: 10,
@@ -279,7 +289,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   modalFlatList: {
-    maxHeight: 300,  // Limit the height of the list inside the modal
+    maxHeight: 300,
   },
   panel: {
     marginTop: 20,
@@ -384,18 +394,18 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    width: '100%', // Make it full width
     backgroundColor: '#234E13',
     marginTop: 20,
     marginBottom: 0,
-    width: '100%',
   },
+  
   tab: {
-    flex: 1,
+    flex: 1, // This ensures each tab takes up an equal portion of the width
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
-  },
+  },  
   tabText: {
     color: '#fff',
     fontSize: 16,
