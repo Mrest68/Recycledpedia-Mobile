@@ -1,21 +1,23 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { View, StyleSheet,Text} from "react-native";
+import { NavigationContainer } from '@react-navigation/native'; // Import NavigationContainer
+import Tabnav from './components/Tabnav.js';
+import { enableScreens } from 'react-native-screens';
+enableScreens();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>  
+        <View style={styles.container}>
+          <Tabnav/>
+        </View>
+    </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+   flex: 1, 
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
