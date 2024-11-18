@@ -6,32 +6,34 @@ import {
   TouchableOpacity,
   Modal,
   FlatList,
-  SafeAreaView,
+  ScrollView,
   TextInput,
   Image,
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
-  ImageBackground, // Import ImageBackground
+  ImageBackground,
 } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Linking } from 'react-native';
 
-// Get device width to scale elements dynamically
+
 const { width } = Dimensions.get('window');
 
 const Curbside = () => {
   const [municipality, setMunicipality] = useState('Click Here!');
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [funFactVisible, setFunFactVisible] = useState(false);
+  const [currentFunFact, setCurrentFunFact] = useState('');
 
   const municipalities = [
-    'Miami', 'Homestead', 'Florida City', 'Miami Beach', 'Coral Gables', 'Hialeah', 
-    'North Miami', 'Opa-locka', 'Miami Springs', 'South Miami', 'Golden Beach', 
-    'North Miami Beach', 'Miami Shores', 'Biscayne Park', 'Surfside', 'El Portal', 
-    'Indian Creek Village', 'Sweetwater', 'North Bay Village', 'West Miami', 
-    'Bay Harbor Islands', 'Bal Harbour', 'Virginia Gardens', 'Hialeah Gardens', 
-    'Medley', 'Key Biscayne', 'Aventura', 'Pinecrest', 'Sunny Isles Beach', 
+    'Miami', 'Homestead', 'Florida City', 'Miami Beach', 'Coral Gables', 'Hialeah',
+    'North Miami', 'Opa-locka', 'Miami Springs', 'South Miami', 'Golden Beach',
+    'North Miami Beach', 'Miami Shores', 'Biscayne Park', 'Surfside', 'El Portal',
+    'Indian Creek Village', 'Sweetwater', 'North Bay Village', 'West Miami',
+    'Bay Harbor Islands', 'Bal Harbour', 'Virginia Gardens', 'Hialeah Gardens',
+    'Medley', 'Key Biscayne', 'Aventura', 'Pinecrest', 'Sunny Isles Beach',
     'Miami Lakes', 'Palmetto Bay', 'Miami Gardens', 'Doral', 'Cutler Bay'
   ];
 
@@ -43,15 +45,71 @@ const Curbside = () => {
     { id: '5', name: 'Glass Bottles', description: 'Used glass bottles for recycling.', image: 'https://via.placeholder.com/100' },
   ];
 
+  const funFacts = [
+    'Did you know? Recycling just one ton of paper saves 17 trees!',
+    'Did you know? Recycling one aluminum can saves enough energy to run a TV for 3 hours!',
+    'Did you know? Plastic bottles can take up to 450 years to decompose in landfills.',
+    'Did you know? Recycling a single glass bottle saves enough energy to light a 100-watt bulb for 4 hours.',
+    'Did you know? Recycling reduces the need for mining raw materials, conserving natural resources.',
+    'Did you know? If every American recycled their newspaper, we could save about 250 million trees annually.',
+    'Did you know? Recycling helps reduce greenhouse gas emissions, making it an important action for climate change.',
+    'Did you know? Americans recycle less than 30% of their waste, but that number could easily be higher.',
+    'Did you know? A single recycled plastic bottle can take 450 years to decompose, while recycled plastic can be reused for new products.',
+    'Did you know? Recycling creates more jobs than landfilling or incinerating waste.',
+    'Did you know? The world’s first recycling plant opened in 1970 in the US.',
+    'Did you know? Recycling aluminum saves 95% of the energy needed to make new aluminum from raw materials.',
+    'Did you know? Recycling one ton of cardboard saves 9 cubic yards of landfill space.',
+    'Did you know? Recycling steel and tin cans saves 74% of the energy needed to make new steel from raw materials.',
+    'Did you know? Recycling electronic waste helps prevent toxic chemicals like mercury and lead from entering our environment.',
+    'Did you know? Recycling 1,000 pounds of plastic saves up to 7,400 kWh of energy, enough to power your home for 6 months!',
+    'Did you know? By recycling just one glass bottle, you can save enough energy to power a computer for 30 minutes.',
+    'Did you know? Recycling one ton of paper can save enough water to supply one person with water for 26 years!',
+    'Did you know? In the US, over 2.5 million plastic bottles are used every hour. Only a fraction of them get recycled.',
+    'Did you know? The first recycling program in the United States was launched in 1896 in New York City.'
+  ];
+
   const handleSelectMunicipality = (city) => {
     setMunicipality(city);
     setModalVisible(false);
   };
 
+  const handleLinkedInPress = () => {
+    Linking.openURL('https://www.linkedin.com/company/dream-in-green/')  // Replace with the actual LinkedIn URL
+      .catch(err => console.error("Failed to open URL:", err));
+  };
+  
+  const handleInstagramPress = () => {
+    Linking.openURL('https://www.instagram.com/dreamingreenmia')  // Replace with the actual Instagram URL
+      .catch(err => console.error("Failed to open URL:", err));
+  };
+  
+  const handleTwitterPress = () => {
+    Linking.openURL('https://x.com/dream_in_green')  // Replace with the actual X (Twitter) page URL
+      .catch(err => console.error("Failed to open URL:", err));
+  };
+  
+
+  const handleFacebookPress = () => {
+    Linking.openURL('https://www.facebook.com/dreamingreen/')
+      .catch(err => console.error("Failed to open URL:", err));
+  };  
+
   const filteredItems = items.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  
+  const handleCharacterClick = () => {
+    // Select a random fun fact
+    const randomFact = funFacts[Math.floor(Math.random() * funFacts.length)];
+    setCurrentFunFact(randomFact);
+    setFunFactVisible(true);
+  };
+
+  const closeFunFactModal = () => {
+    setFunFactVisible(false);
+  };
 
   const renderMunicipalityModal = () => (
     <Modal
@@ -92,16 +150,23 @@ const Curbside = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ImageBackground
         source={require('./curbside2.png')}
-        style={styles.backgroundImage} // Apply style to make the image cover the screen
+        style={styles.backgroundImage}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={{ flex: 1 }}>
               {/* Header Section */}
               <View style={styles.header}>
+                {/* Character Image */}
+                <TouchableOpacity onPress={handleCharacterClick}>
+                  <Image
+                    source={require('./Diggy.png')}
+                    style={styles.characterImage}
+                  />
+                </TouchableOpacity>
                 <Text style={styles.headerTitle}>Curbside Pickup Items</Text>
               </View>
 
@@ -167,36 +232,62 @@ const Curbside = () => {
                 <View style={styles.socialContainer}>
                   <Text style={styles.copyrightText}>Copyright @ 2024 Recyclepedia</Text>
                   <View style={styles.socialIcons}>
-                    <TouchableOpacity onPress={() => alert('Facebook')}>
-                      <FontAwesome name="facebook" size={24} color="#4CAF50" style={styles.icon} />
+                    {/* Facebook Icon */}
+                    <TouchableOpacity onPress={handleFacebookPress}>
+                        <FontAwesome name="facebook" size={24} color="#4CAF50" style={styles.icon} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => alert('Instagram')}>
-                      <FontAwesome name="instagram" size={24} color="#4CAF50" style={styles.icon} />
+
+                    {/* Instagram Icon */}
+                    <TouchableOpacity onPress={handleInstagramPress}>
+                        <FontAwesome name="instagram" size={24} color="#4CAF50" style={styles.icon} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => alert('LinkedIn')}>
-                      <FontAwesome name="linkedin" size={24} color="#4CAF50" style={styles.icon} />
+
+                    {/* LinkedIn Icon */}
+                    <TouchableOpacity onPress={handleLinkedInPress}>
+                        <FontAwesome name="linkedin" size={24} color="#4CAF50" style={styles.icon} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => alert('Twitter (X)')}>
-                      <FontAwesome name="twitter" size={24} color="#4CAF50" style={styles.icon} />
+
+                    {/* X (Twitter) Icon */}
+                    <TouchableOpacity onPress={handleTwitterPress}>
+                        <FontAwesome name="twitter" size={24} color="#4CAF50" style={styles.icon} />
                     </TouchableOpacity>
-                  </View>
+                    </View>
+
                 </View>
               </View>
             </View>
           </ScrollView>
 
           {renderMunicipalityModal()}
+
+          {/* Fun Fact Modal */}
+          {funFactVisible && (
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={funFactVisible}
+              onRequestClose={closeFunFactModal}
+            >
+              <View style={styles.funFactModalBackground}>
+                <View style={styles.funFactModalContainer}>
+                  <Text style={styles.funFactText}>{currentFunFact}</Text>
+                  <TouchableOpacity style={styles.closeButton} onPress={closeFunFactModal}>
+                    <Text style={styles.closeButtonText}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          )}
         </KeyboardAvoidingView>
       </ImageBackground>
-    </SafeAreaView>
+    </View>
   );
 };
 
 // Styles
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: 'transparent', // Set the background as transparent because ImageBackground will cover the screen
+    flex: 1, // Ensure the container takes full screen height
   },
   scrollContainer: {
     flexGrow: 1,
@@ -208,8 +299,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', // Center the content horizontally
   },
   header: {
-    backgroundColor: '#234E13',
-    paddingVertical: 40,
+    paddingVertical: 20,
     alignItems: 'center',
     justifyContent: 'center',
     borderBottomLeftRadius: 20,
@@ -219,6 +309,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 10,
+  },
+  characterImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 10,
+    marginTop: Platform.OS === 'ios' ? 20 : 10, // Additional space around the character for iOS
   },
   headerTitle: {
     fontSize: width > 400 ? 40 : 34,
@@ -236,10 +333,16 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     alignItems: 'center',
     marginHorizontal: 20,
-    backgroundColor: '#fff',
     padding: 15,
     borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Semi-transparent background
+    backdropFilter: 'blur(10px)', // Optional blur for iOS 14 and above
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
   },
+  
   municipalityText: {
     fontSize: 18,
     color: '#333',
@@ -301,6 +404,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Semi-transparent background
+    backdropFilter: 'blur(10px)', // Optional blur for iOS 14 and above
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -394,14 +502,13 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: 'row',
-    width: '100%', // Make it full width
-    backgroundColor: '#234E13',
+    width: '100%', 
+    backgroundColor: '#006838',
     marginTop: 20,
-    marginBottom: 0,
   },
   
   tab: {
-    flex: 1, // This ensures each tab takes up an equal portion of the width
+    flex: 1, 
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -427,6 +534,38 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginHorizontal: 10,
+  },
+
+  // Fun Fact Modal Styles
+  funFactModalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  funFactModalContainer: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 15,
+    alignItems: 'center',
+  },
+  funFactText: {
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  closeButton: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    borderRadius: 10,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
