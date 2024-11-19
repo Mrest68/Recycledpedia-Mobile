@@ -8,6 +8,7 @@ import { enableScreens } from 'react-native-screens';
 //import firestore from '@react-native-firebase/firestore';
 
 import { firestore } from './config/firebaseConfig';
+import { PaperProvider } from "react-native-paper";
 
 enableScreens();
 
@@ -34,11 +35,13 @@ export default function App() {
   }, []);
 
   return (
-    <NavigationContainer>  
-      <View style={styles.container}>
-        <Tabnav />
-      </View>
-    </NavigationContainer>
+    <PaperProvider>
+      <NavigationContainer>  
+        <View style={styles.container}>
+          <Tabnav />
+        </View>
+      </NavigationContainer>
+    </PaperProvider>
   );
 }
 
