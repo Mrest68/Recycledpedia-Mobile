@@ -14,7 +14,7 @@ import {
   Platform,
   ImageBackground,
 } from 'react-native';
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome, AntDesign } from '@expo/vector-icons';
 import { Linking } from 'react-native';
 
 
@@ -234,22 +234,22 @@ const Curbside = () => {
                   <View style={styles.socialIcons}>
                     {/* Facebook Icon */}
                     <TouchableOpacity onPress={handleFacebookPress}>
-                        <FontAwesome name="facebook" size={24} color="#4CAF50" style={styles.icon} />
+                        <FontAwesome name="" size={24} color="#FFFFFF" style={styles.icon} />
                     </TouchableOpacity>
 
                     {/* Instagram Icon */}
                     <TouchableOpacity onPress={handleInstagramPress}>
-                        <FontAwesome name="instagram" size={24} color="#4CAF50" style={styles.icon} />
+                        <FontAwesome name="" size={24} color="#FFFFFF" style={styles.icon} />
                     </TouchableOpacity>
 
                     {/* LinkedIn Icon */}
                     <TouchableOpacity onPress={handleLinkedInPress}>
-                        <FontAwesome name="linkedin" size={24} color="#4CAF50" style={styles.icon} />
+                        <FontAwesome name="" size={24} color="#FFFFFF" style={styles.icon} />
                     </TouchableOpacity>
 
                     {/* X (Twitter) Icon */}
                     <TouchableOpacity onPress={handleTwitterPress}>
-                        <FontAwesome name="twitter" size={24} color="#4CAF50" style={styles.icon} />
+                        <FontAwesome name="" size={24} color="#FFFFFF" style={styles.icon} />
                     </TouchableOpacity>
                     </View>
 
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   },
   bottomHeaderText: {
     fontSize: 16,
-    color: '#007BFF',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   findButton: {
