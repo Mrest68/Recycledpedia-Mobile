@@ -58,8 +58,7 @@ imageContainer: {
 learnGameImage: {
     width: '60%',  
     height: '60%',
-    transform: [{ rotate: '15deg' }],
-    marginBottom:calcHeight(30),
+    marginBottom:calcHeight(40),
     resizeMode: 'contain',
 },
 textContainer: {

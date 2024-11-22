@@ -1,7 +1,9 @@
 import React, {useState,useEffect} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, ScrollView,Linking } from 'react-native';
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+;
+
 const baseDimension = { 'baseHeight': 675, 'baseWidth': 375 };
 
 
@@ -22,6 +24,9 @@ function calcWidth(size) {
 
 
 export default function About() {
+  const openURL = (url)=>{
+    Linking.openURL(url).catch((err)=>console.error("Failed to open",err))
+  };
   const [num,setNum] = useState(0);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -39,10 +44,21 @@ export default function About() {
           Since 2006, Dream in Green (DIG) has empowered individuals, particularly youth, to lead the response to climate change and environmental challenges in South Florida. Through partnerships with schools, households, local governments, and businesses, we focus on reducing environmental footprints. By developing and overseeing educational programs and workshops, we promote sustainable behaviors across all age groups, with a special emphasis on K-12 students.
         </Text>
         <View style={styles.socialIconContainer}>
+          <TouchableOpacity onPress={()=>openURL('https://www.linkedin.com/company/dream-in-green/')}>
             <Entypo  style={styles.socialIcons} name="linkedin" size={24} color="#234E13" />
-            <Entypo  style={styles.socialIcons} name="instagram" size={24} color="#234E13" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>openURL('https://www.facebook.com/dreamingreen')}>
             <Entypo  style={styles.socialIcons} name="facebook" size={24} color="#234E13" />
-            <FontAwesome6 name="x-twitter" size={24} color="#234E13" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>openURL('https://www.instagram.com/dreamingreenmia/')}>
+            <Entypo  style={styles.socialIcons} name="instagram" size={24} color="#234E13" />
+          </TouchableOpacity>            
+          <TouchableOpacity onPress={()=>openURL('https://www.youtube.com/channel/UCn5Z3T2ejG4dYEJhe9ezLww')}>
+            <Entypo  style={styles.socialIcons} name="youtube" size={24} color="#234E13" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>openURL('https://x.com/Dream_in_Green')}>            
+          <FontAwesome6 name="x-twitter" size={24} color="#234E13" />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -58,13 +74,13 @@ export default function About() {
         {num} 
        </Text>
        <Text style={{fontStyle:'italic'}}>
-        billion tons of waste
+         tons of waste
        </Text>
        </View>
        
        <Text style={styles.funFact}>
           Note:
-          "Did you know the world generates over 2.01 billion tons of waste each year? That is 318.5 billion tons of waste every 5 seconds."
+          "Did you know the world generates over 2.01 billion tons of waste each year? That is 318.5 tons of waste every 5 seconds."
         </Text>
       </View>
 
@@ -73,7 +89,7 @@ export default function About() {
         <Text style={styles.paragraphText}>
           Recyclepedia is designed to simplify access to accurate recycling information for Miami-Dade County residents. By providing comprehensive guidance on what can and cannot be recycled, Recyclepedia helps reduce contamination and improve recycling success. The platform offers alternatives for disposing of non-recyclable items, directing users to appropriate drop-off locations. By increasing recycling rates, we can reduce pollution and enhance the overall health of our communities.
         </Text>
-        <TouchableOpacity style={styles.button2} onPress={() => alert('Learn More Pressed!')}>
+        <TouchableOpacity style={styles.button2} onPress={()=>openURL('https://dreamingreen.org/about-us/')}>
           <Text style={styles.buttonText2}>Learn More</Text>
         </TouchableOpacity>
       </View>
@@ -102,7 +118,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: calcWidth(1),
     borderBottomColor: "#a9def9",
     paddingHorizontal: calcWidth(10),
-    paddingTop: calcHeight(80),
+    paddingTop: calcHeight(110),
     paddingBottom: calcHeight(20)
   },
   boxMiddle: {

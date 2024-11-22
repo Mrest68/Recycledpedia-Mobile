@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Button, ActivityIndicator, Alert, Linking } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Button, ActivityIndicator, Alert, Linking, Dimensions } from 'react-native';
 import { Menu, Provider, Button as PaperButton } from 'react-native-paper';
 import * as Location from 'expo-location';
 import { firestore } from '../../config/firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
 // Updated availableCategories array
+const { width } = Dimensions.get('window');
+
 const availableCategories = [
   'Batteries',
   'Miscellaneous',
@@ -39,14 +41,28 @@ const Items = () => {
   const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
+   
     const requestLocationPermission = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert("Permission Denied", "Location permission is required to find nearby recycling locations.");
-        return;
+      const testLocation = {
+        "accuracy": 5,
+        "altitude": 0,
+        "altitudeAccuracy": -1,
+        "heading": -1,
+        "latitude": 25.7572,
+        "longitude": -80.3743,
+        "speed": -1
       }
-      let location = await Location.getCurrentPositionAsync({});
-      setUserLocation(location.coords);
+      // let { status } = await Location.requestForegroundPermissionsAsync();
+      
+      // if (status !== 'granted') {
+      //   Alert.alert("Permission Denied", "Location permission is required to find nearby recycling locations.");
+      //   return;
+      // }
+      // let location = await Location.getCurrentPositionAsync({});
+      // setUserLocation(location.coords);
+      setUserLocation(testLocation);
+      console.log(userLocation);
+
     };
     requestLocationPermission();
   }, []);
@@ -62,6 +78,7 @@ const Items = () => {
         id: doc.id,
         ...doc.data(),
       }));
+//25.7562° N, 80.3755° W
 
       const filteredByDistance = locationsList.filter((location) => {
         if (!userLocation) return true;
@@ -168,9 +185,13 @@ const Items = () => {
     </TouchableOpacity>
   );
 
+
   return (
     <Provider>
       <View style={styles.container}>
+        <Text style={styles.headerTitle}>
+          Items
+        </Text>
         <TextInput
           style={styles.searchBar}
           placeholder="Enter a category (e.g., Paper)"
@@ -258,6 +279,14 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
   },
+  headerTitle: {
+    fontSize: width > 400 ? 40 : 34,
+    textAlign: 'center',
+    marginTop:45,
+    color:'#6ad04b',
+
+    // textShadowOffset: { width: 1, height: 1 },
+  },
   searchBar: {
     height: 40,
     borderColor: '#ccc',
@@ -265,7 +294,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 10,
-    marginTop: 50,
+    marginTop: 10,
   },
   suggestionsContainer: {
     backgroundColor: '#f8f8f8',

@@ -2,8 +2,9 @@ import React from "react";
 import { View, Text, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import LearnGame from '../learncomps/LearnGame';
 import LearnGameImageOne from '../../assets/LearningGameOne.png';
+import LearnGameImageTwo from '../../assets/LearnGameImageTwo.png';
 import FeaturedGame from "../learncomps/FeaturedGame";
-import FeatureGameImage from "../../assets/FeatureGameImage.png"
+import FeatureGameImage from "../../assets/Diggy.png"
 import cartoon from '../../assets/cartons.png'
 import toter from '../../assets/toter.png'
 const { width, height } = Dimensions.get('window');
@@ -25,7 +26,7 @@ const Learn = () => {
         <View style={styles.outerContainer}>
             <View style={styles.container}>
                 <Text style={styles.learnHeader}>Learn</Text>
-                <FeaturedGame image={FeatureGameImage} title={"sample game"} />
+                <FeaturedGame image={FeatureGameImage} title={"Diggy Recycling Game"} />
                 
                 <View style={styles.scrollContainer}>
                     <Text style={styles.scrollContainerHeader}> More Games</Text>
@@ -34,10 +35,10 @@ const Learn = () => {
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={styles.rowContentContainer}
                     >          
-                         <LearnGame image={toter} title={"sample game"} color={"#a9def9"} url={"https://www.coolmathgames.com/0-appel"}/>
-                        <LearnGame image={cartoon} title={"sample game"} color={"#234E13"} url={"https://www.coolmathgames.com/0-suika-watermelon-game"}/>
-                        <LearnGame image={toter} title={"sample game"} color={"#a9def9"} url={"https://www.coolmathgames.com/0-jelly-escape"}/>
-                        <LearnGame image={LearnGameImageOne} title={"sample game"} color={"#DBF4D2"} url={"https://www.coolmathgames.com/0-cube-connect"}/>
+                         <LearnGame image={toter} title={"Recycle Round Up"} color={"#a9def9"} url={"https://kids.nationalgeographic.com/games/action-adventure/article/recycle-roundup-new"}/>
+                        <LearnGame image={cartoon} title={"Litter Critter"} color={"#234E13"} url={"https://www.abcya.com/games/recycling_game"}/>
+                        <LearnGame image={LearnGameImageTwo} title={"Recycle or Not"} color={"#a9def9"} url={"https://www.recycleornot.org/"}/>
+                        <LearnGame image={require('../../assets/Mountain.png')} title={"Recycling Waste"} color={"#DBF4D2"} url={"https://www.turtlediary.com/game/recycling-waste.html"}/>
                     </ScrollView>
                 </View>
                 
@@ -49,10 +50,10 @@ const Learn = () => {
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={styles.rowContentContainer}
                     >
-                        <LearnGame image={LearnGameImageOne} title={"sample article"} color={"#234E13"}/>
-                        <LearnGame image={LearnGameImageOne} title={"sample article"} color={"#DBF4D2"}/>
-                        <LearnGame image={LearnGameImageOne} title={"sample article"} color={"#a9def9"}/>
-                        <LearnGame image={LearnGameImageOne} title={"sample article"} color={"#234E13"}/>
+                        <LearnGame image={require('../../assets/DoodoEarth.png')} title={"sample article"} color={"#234E13"} url={"https://dreamingreen.org/design-build-competition-high-school-students-design-for-the-future/"}/>
+                        <LearnGame image={require('../../assets/cloud.png')} title={"sample article"} color={"#DBF4D2"} url={"https://dreamingreen.org/miami-environmental-education-activist-seeks-solutions-at-worldwide-climate-change-conference/"}/>
+                        <LearnGame image={require('../../assets/FeatureGameImage.png')} title={"sample article"} color={"#a9def9"} url={"https://www.miamidade.gov/global/service.page?Mduid_service=ser1494966732017925"}/>
+                        <LearnGame image={require('../../assets/1.png')} title={"sample article"} color={"#234E13"} url={"https://www.waste360.com/waste-recycling/miami-dade-county-introduces-fees-for-unresolved-contamination-in-resident-s-recycling-bins"}/>
                     </ScrollView>
                 </View>
             </View>
@@ -74,7 +75,10 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         marginBottom: 10,
         marginTop: calcHeight(30),
-        marginLeft:calcFont(30),  
+        marginLeft:calcFont(30), 
+        color:'#6ad04b',
+
+ 
     },
     scrollContainerHeader:{
         textAlign:"center",

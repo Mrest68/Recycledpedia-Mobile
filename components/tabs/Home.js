@@ -175,7 +175,7 @@ export default function Home() {
 
         {/* Green Button */}
         <TouchableOpacity style={styles.greenButton} onPress={toggleModal}>
-          <Text style={styles.greenButtonText}>What is Recyclopedia</Text>
+          <Text style={styles.greenButtonText}>What is Recyclopedia?</Text>
         </TouchableOpacity>
 
         {/* Modal with Blur Background */}
@@ -201,12 +201,11 @@ export default function Home() {
       </View>
 
         {/* Get Started Section */}
-        <Text style={styles.getStartedTitle}>Get Started</Text>
 
         {/* Take Action Section with Lines */}
         <View style={styles.takeActionContainer}>
           <View style={styles.line} />
-          <Text style={styles.takeActionTitle}>TAKE ACTION</Text>
+          <Text style={styles.takeActionTitle}>Take Action Today</Text>
           <View style={styles.line} />
         </View>
 
@@ -326,6 +325,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   scrollContainer: {
     paddingBottom: 20,
+    backgroundColor:'white',
   },
   greenButton: {
     backgroundColor: '#2F4F2F', // Aesthetic green
@@ -431,11 +431,12 @@ const styles = StyleSheet.create({
   },
   bigTitle: {
     marginTop: -10,
-    fontSize: 30,
+    fontSize: 50,
     textAlign: 'center',
+    color:'#6ad04b',
   },
   MediumTitle: {
-    fontSize: 20,
+    fontSize: 30,
     textAlign: 'center',
     marginTop: 15,
     color: 'black',
@@ -468,18 +469,20 @@ const styles = StyleSheet.create({
   },
   getStartedTitle: {
     marginTop: 20,
-    fontSize: 15,
+    fontSize: 30,
     textAlign: 'center',
     marginBottom: 15,
   },
   takeActionContainer: {
+    backgroundColor:'white',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
+    marginTop:10,
   },
   takeActionTitle: {
-    fontSize: 20,
+    fontSize: 30,
     color: 'black',
     marginHorizontal: 10,
   },
@@ -578,9 +581,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   signUpText: {
-    color: 'black',
+    color: 'white',
     fontSize: 14,
-    fontWeight: 'bold',
   },
   communitySectionContainer: {
     flexDirection: 'row',
