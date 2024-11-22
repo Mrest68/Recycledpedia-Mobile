@@ -7,7 +7,6 @@ buildscript {
         compileSdkVersion = Integer.parseInt(findProperty('android.compileSdkVersion') ?: '34')
         targetSdkVersion = Integer.parseInt(findProperty('android.targetSdkVersion') ?: '34')
         kotlinVersion = findProperty('android.kotlinVersion') ?: '1.9.23'
-
         ndkVersion = "26.1.10909125"
     }
     repositories {
@@ -15,9 +14,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath('com.android.tools.build:gradle')
-        classpath('com.facebook.react:react-native-gradle-plugin')
-        classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
+        // Specify the Gradle plugin version
+        classpath 'com.android.tools.build:gradle:7.6' // Update to Gradle 7.6
+        classpath 'com.google.gms:google-services:4.3.10' // Google services plugin for Firebase
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.23' // Specify the Kotlin version
+        classpath 'com.facebook.react:react-native-gradle-plugin' // React Native Gradle plugin
     }
 }
 

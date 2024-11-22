@@ -1,0 +1,29 @@
+  {
+  "project_info": {
+    "project_number": "886289701437",
+    "project_id": "diginfo",
+    "storage_bucket": "diginfo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:886289701437:android:fa5e75ad313253cd366854",
+        "android_client_info": {
+          "package_name": "DiG.Android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1xudeSJkINOadRaKWdEu6jMPKFgEPboI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
