@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Home from './tabs/Home.js';
-import Contact from './tabs/Contact.js';
+import About from './tabs/About.js';
 import Learn from './tabs/Learn.js';
 import Curbside from './tabs/Curbside.js';
 import Items from './tabs/Items.js';
@@ -22,11 +22,11 @@ function Tabnav() {
       initialRouteName="Home"
     >
       <Tab.Screen 
-        name="Contact" 
-        component={Contact} 
+        name="About" 
+        component={About} 
         options={{
           tabBarIcon: ({ size, color }) => <MaterialIcons name="contact-support" size={size} color={color} />,
-          tabBarLabel: 'Contact',
+          tabBarLabel: 'About',
         }}
       />
       <Tab.Screen 
