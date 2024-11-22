@@ -276,7 +276,7 @@ export default function Home() {
           <View style={styles.communityLeft}>
             <Text style={styles.communitySubtitle}>Community Calendar Header</Text>
             <Text style={styles.communityParagraph}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+              Get involved with your comumunity and make a difference by exploring events, activities, and more!
             </Text>
           </View>
         {/* Calendar View Placeholder */}
