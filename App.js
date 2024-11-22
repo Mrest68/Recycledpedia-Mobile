@@ -19,21 +19,6 @@ enableScreens();
 // }
 
 export default function App() {
-  // Fetch data from Firestore when the app loads
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const snapshot = await firestore().collection('your_collection').get();
-        const data = snapshot.docs.map(doc => doc.data());
-        console.log("Firestore Data:", data);
-      } catch (error) {
-        console.error("Error fetching data from Firestore:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
   return (
     <PaperProvider>
       <NavigationContainer>  

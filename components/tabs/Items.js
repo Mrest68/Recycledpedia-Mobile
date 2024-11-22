@@ -1,11 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Button, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Button, ActivityIndicator, Alert, Linking } from 'react-native';
 import { Menu, Provider, Button as PaperButton } from 'react-native-paper';
 import * as Location from 'expo-location';
 import { firestore } from '../../config/firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
-const availableCategories = ['Paper', 'Plastic', 'Glass', 'Metal', 'Electronics'];
+// Updated availableCategories array
+const availableCategories = [
+  'Batteries',
+  'Miscellaneous',
+  'Electronics',
+  'Plastics',
+  'Appliances',
+  'Yard Waste',
+  'Household Items',
+  'Paper',
+  'Cans',
+  'Cardboard',
+  'Cartons',
+  'Hazardous Waste',
+  'Medication',
+  'Textiles',
+  'Glass',
+  'Furniture',
+  'Metals',
+  'Plastic Bottles'
+];
 
 const Items = () => {
   const [search, setSearch] = useState('');
@@ -62,7 +82,7 @@ const Items = () => {
   };
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 3958.8;
+    const R = 3958.8; // Radius of Earth in miles
     const dLat = (lat2 - lat1) * (Math.PI / 180);
     const dLon = (lon2 - lon1) * (Math.PI / 180);
     const a =
@@ -74,7 +94,23 @@ const Items = () => {
   };
 
   const handleSearch = () => {
-    fetchFilteredLocations();
+    if (!search.trim()) {
+      Alert.alert("Search Required", "Please enter a category in the search bar before searching.");
+      return;
+    }
+
+    // Check if the search input matches an available category
+    const matchedCategory = availableCategories.find(
+      (cat) => cat.toLowerCase() === search.toLowerCase()
+    );
+
+    if (!matchedCategory) {
+      Alert.alert("Invalid Category", "Please select a valid category from the suggestions.");
+      return;
+    }
+
+    setCategory(matchedCategory); // Set the matched category
+    fetchFilteredLocations(); // Fetch locations
   };
 
   const handleSearchInputChange = (text) => {
@@ -95,8 +131,36 @@ const Items = () => {
     setSuggestions([]);
   };
 
+  const handleLocationPress = (latitude, longitude) => {
+    Alert.alert(
+      'Navigate to Location',
+      'Choose a navigation app to open:',
+      [
+        {
+          text: 'Google Maps',
+          onPress: () => {
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+            Linking.openURL(url);
+          },
+        },
+        {
+          text: 'Apple Maps',
+          onPress: () => {
+            const url = `http://maps.apple.com/?daddr=${latitude},${longitude}`;
+            Linking.openURL(url);
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.itemContainer}>
+    <TouchableOpacity
+      style={styles.itemContainer}
+      onPress={() => handleLocationPress(item.latitude, item.longitude)}
+    >
       <Text style={styles.itemName}>{item.yam}</Text>
       <Text style={styles.itemDetails}>{item.street}, {item.city}, {item.state} {item.zip}</Text>
       <Text style={styles.itemDetails}>Category: {item.category}</Text>
@@ -241,5 +305,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
-
-export default Items;
+  
+  export default Items;
+  
