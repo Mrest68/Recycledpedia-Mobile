@@ -1,8 +1,15 @@
 import { Dimensions } from 'react-native';
 import React, { useState, useEffect, useRef, Easing } from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView, Animated, Pressable, Modal} from 'react-native';
+import {
+  View, Text, Image, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView, Animated, Pressable, Modal, KeyboardAvoidingView, Platform} from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import { Calendar } from 'react-native-calendars';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import DropDownPicker from 'react-native-dropdown-picker';
+
+
+
+
 
 
 
@@ -18,8 +25,57 @@ export default function Home() {
   const mountainAnimation = useRef(new Animated.Value(0)).current;
   const DiggyAnimation = useRef(new Animated.Value(0)).current;
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+  const [isEventModalVisible, setIsEventModalVisible] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [eventTitle, setEventTitle] = useState('');
+  const [eventDescription, setEventDescription] = useState('');
+  const [eventTime, setEventTime] = useState(new Date());
+  const [eventPlace, setEventPlace] = useState('');
+  const [events, setEvents] = useState({});
+  const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
+  const [displayEvents, setDisplayEvents] = useState({});
+  const [isAddEventCalendarVisible, setIsAddEventCalendarVisible] = useState(false);
+  const [isDisplayCalendarVisible, setIsDisplayCalendarVisible] = useState(false);
 
 
+  //I wanna add this now brotha 
+
+  const [isEventDetailModalVisible, setIsEventDetailModalVisible] = useState(false);
+  const [selectedEventDetails, setSelectedEventDetails] = useState(null);
+
+  //adding this as weell brotha 
+
+
+  // this is new
+
+
+
+
+  // this is new until here 
+
+
+  //This is new for the time selection
+  const [selectedHour, setSelectedHour] = useState(12); // Default to 12 (as a number)
+  const [selectedMinute, setSelectedMinute] = useState(0); // Default to 0 (as a number)
+  const [selectedPeriod, setSelectedPeriod] = useState('AM'); // Default to 'AM' (as a string)
+
+  //This is for the time selection
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [dropdownItems, setDropdownItems] = useState([
+    { label: 'AM', value: 'AM' },
+    { label: 'PM', value: 'PM' },
+  ]);
+
+  // Toggle display calendar modal
+  const toggleDisplayCalendar = () => {
+    setIsDisplayCalendarVisible(!isDisplayCalendarVisible);
+  };
+
+  // Toggle add event calendar modal
+  const toggleAddEventCalendar = () => {
+    setIsAddEventCalendarVisible(!isAddEventCalendarVisible);
+  };
 
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
@@ -33,11 +89,118 @@ export default function Home() {
     Alert.alert('Explore', message);
   };
 
+  const handleSaveTime = () => {
+    const hour = parseInt(selectedHour, 10);
+    const minute = parseInt(selectedMinute, 10);
+    const period = selectedPeriod?.toUpperCase();
+
+    if (
+      hour >= 1 &&
+      hour <= 12 &&
+      minute >= 0 &&
+      minute <= 59 &&
+      (period === 'AM' || period === 'PM')
+    ) {
+      const formattedHour = period === 'PM' && hour !== 12 ? hour + 12 : hour;
+      const formattedTime = new Date();
+      formattedTime.setHours(formattedHour, minute);
+
+      setEventTime(formattedTime); // Save event time
+      setIsTimePickerVisible(false); // Close the modal
+    } else {
+      Alert.alert('Invalid Time', 'Please enter a valid time.');
+    }
+  };
+
+
+
+
+
+
+  const handleDeleteEvent = (date, eventDetails) => {
+    setDisplayEvents((prev) => {
+      const updatedEvents = { ...prev };
+      updatedEvents[date] = updatedEvents[date]?.filter(
+        (event) => event.title !== eventDetails.title
+      );
+      if (updatedEvents[date]?.length === 0) {
+        delete updatedEvents[date]; // Remove the date if no events are left
+      }
+      return updatedEvents;
+    });
+
+    // Close the modal
+    setIsEventDetailModalVisible(false);
+
+    Alert.alert('Event Deleted', 'The event has been removed from the calendar.');
+  };
+
+
   const toggleCalendar = () => {
     setIsCalendarVisible(!isCalendarVisible);
   };
 
+  const handleDayPress = (day) => {
+    setSelectedDate(day.dateString);
+    setIsEventModalVisible(true);
+    const events = displayEvents[day.dateString];
+    if (events && events.length > 0) {
+      setSelectedEventDetails(events[0]); // Assuming one event per date
+      setIsEventDetailModalVisible(true); // Show modal
+    } 
+  };
 
+  const handleTimeChange = (event, selectedTime) => {
+    if (selectedTime) {
+      setEventTime(selectedTime); // Update the selected time
+    }
+    setIsTimePickerVisible(false); // Close the picker
+  };
+
+  const saveEvent = () => {
+    if (!eventTitle || !eventDescription || !eventPlace) {
+      Alert.alert('Error', 'Please fill out all fields.');
+      return;
+    }
+
+      const handleFocus = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ y: 50, animated: true }); // Adjust to the necessary position
+    }
+  };
+    // setthe display event
+    setDisplayEvents((prev) => ({
+      ...prev,
+      [selectedDate]: [
+        ...(prev[selectedDate] || []),
+        {
+          title: eventTitle,
+          description: eventDescription,
+          time: eventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
+          place: eventPlace,
+        },
+      ],
+    }));
+
+    setEvents((prev) => ({
+      ...prev,
+      [selectedDate]: [
+        ...(prev[selectedDate] || []),
+        {
+          title: eventTitle,
+          description: eventDescription,
+          time: eventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
+          place: eventPlace,
+        },
+      ],
+    }));
+    setEventTitle('');
+    setEventDescription('');
+    setEventPlace('');
+    setEventTime(new Date());
+    setIsEventModalVisible(false);
+    Alert.alert('Success', 'Event added to calendar!');
+  };
 
   useEffect(() => {
     const startCloudAnimation = () => {
@@ -124,6 +287,8 @@ export default function Home() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
+      
+        
 
       {/* Green Sky Background with Animated Clouds */}
       <View style={styles.skyContainer}>
@@ -276,7 +441,7 @@ export default function Home() {
           <View style={styles.communityLeft}>
             <Text style={styles.communitySubtitle}>Community Calendar Header</Text>
             <Text style={styles.communityParagraph}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+              Get involved with your comumunity and make a difference by exploring events, activities, and more!
             </Text>
           </View>
         {/* Calendar View Placeholder */}
@@ -288,7 +453,11 @@ export default function Home() {
       {/* Calendar Modal */}
       <Modal visible={isCalendarVisible} transparent={true} animationType="fade">
         {/* Blur Effect */}
-        <BlurView style={styles.blurView} blurType="light" blurAmount={10} />
+        <BlurView
+          style={styles.blurView}
+          blurType="light"
+          blurAmount={isEventModalVisible ? 20 : 10} // Increase blur if Add Event modal is active
+        />
 
         {/* Green Overlay */}
         <View style={styles.greenOverlay} />
@@ -299,28 +468,261 @@ export default function Home() {
 
           {/* Calendar Component */}
           <Calendar
-            // Initial Date
-            current={new Date().toISOString().split('T')[0]}
-            // Allow Month Change
-            onMonthChange={(month) => {
-              console.log('Month changed', month);
-            }}
-            // On Day Select
+            markedDates={Object.keys(displayEvents).reduce((acc, date) => {
+              acc[date] = { marked: true };
+              return acc;
+            }, {})}
             onDayPress={(day) => {
-              console.log('Selected day', day);
+              const events = displayEvents[day.dateString] || [];
+              if (events.length > 0) {
+                setSelectedEventDetails(events[0]); // Set the first event (assuming one per day)
+                setIsEventDetailModalVisible(true); // Trigger the modal to open
+              } else {
+                Alert.alert('No Events', 'No events on this day.');
+              }
             }}
-            style={styles.calendar}
           />
 
           {/* Close Button */}
-          <TouchableOpacity style={styles.closeButton} onPress={toggleCalendar}>
-            <Text style={styles.closeButtonText}>X</Text>
+          <TouchableOpacity style={styles.CalendarcloseButton} onPress={toggleCalendar}>
+            <Text style={styles.CalendarcloseButtonText}>X</Text>
+          </TouchableOpacity>
+
+
+          {/* Add Event Button */}
+          <TouchableOpacity
+            style={styles.calendarButton}
+            onPress={() => setIsEventModalVisible(true)} // Open Add Event Modal
+          >
+            <Text style={styles.calendarButtonText}>Add Event</Text>
           </TouchableOpacity>
         </View>
+
+
+        <Modal visible={isEventModalVisible} transparent={true} animationType="slide">
+          <BlurView style={styles.blurView} blurType="light" blurAmount={30} />
+
+          <View style={styles.CalendarmodalBackground}>
+            <View style={styles.CalendareventModalContent}>
+              {/* Wrap all text inside <Text> */}
+              <Text style={styles.CalendarmodalTitle}>Add Event</Text>
+              <TextInput
+                style={styles.Calendarinput}
+                placeholder="Event Title"
+                placeholderTextColor="#888888" // Set the desired placeholder color
+                value={eventTitle}
+                onChangeText={setEventTitle}
+              />
+              <TextInput
+                style={styles.Calendarinput}
+                placeholder="Event Description"
+                placeholderTextColor="#888888" // Set the desired placeholder color
+                value={eventDescription}
+                onChangeText={setEventDescription}
+                multiline
+              />
+              <TextInput
+                style={styles.Calendarinput}
+                placeholder="Event Place"
+                placeholderTextColor="#888888" // Set the desired placeholder color
+                value={eventPlace}
+                onChangeText={setEventPlace}
+              />
+
+                {/* Calendar for Day Selection */}
+                <Calendar
+                  onDayPress={handleDayPress} // Save selected day
+                  markedDates={{
+                    [selectedDate]: { selected: true, marked: true, selectedColor: 'blue' },
+                  }}
+                />
+
+                {/* Display Selected Date */}
+              <Text style={[styles.dateText, { marginBottom: 10 }]}>
+                  Selected Date: {selectedDate || 'None'}
+                </Text>
+
+              
+                <Text style={[styles.inputlabel, { marginBottom: 10 }]}>
+
+              Event Date: {selectedDate || 'None'}</Text>
+              <TouchableOpacity
+                style={styles.CalendartimeButton}
+                onPress={() => setIsTimePickerVisible(true)}
+              >
+                <Text style={styles.CalendartimeButtonText}>
+                  Select Time: {eventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                </Text>
+              </TouchableOpacity>
+
+               {/* Time Picker */}
+            {isTimePickerVisible && (
+                <DateTimePicker
+                    value={eventTime}
+                    mode="time" // Time picker mode
+                    is24Hour={false} // Set to true for 24-hour format
+                    display="default"
+                    onChange={handleTimeChange} // Handle time selection
+                />
+            )}
+
+
+              
+
+
+
+
+
+
+
+
+
+            
+              <TouchableOpacity style={styles.CalendarsaveButton} onPress={saveEvent}>
+                <Text style={styles.CalendarsaveButtonText}>Save Event</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.CalendarcloseButton} onPress={() => setIsEventModalVisible(false)}>
+                <Text style={styles.CalendarcloseButtonText}>X</Text>
+              </TouchableOpacity>
+            </View>
+            </View>
+        </Modal>
       </Modal>
-    </ScrollView>
-  );
-}
+
+
+      <Modal
+        visible={isEventDetailModalVisible}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.eventDetailModalOverlay}>
+          <View style={styles.eventDetailModal}>
+            {/* Close Button in Top-Right */}
+            <TouchableOpacity
+              style={styles.eventDetailCloseButton}
+              onPress={() => setIsEventDetailModalVisible(false)}
+            >
+              <Text style={styles.eventDetailCloseButtonText}>X</Text>
+            </TouchableOpacity>
+
+            {/* Event Title */}
+            <Text style={styles.eventDetailTitle}>
+              {selectedEventDetails?.title || 'No Title'}
+            </Text>
+
+            {/* Event Details */}
+            <Text style={styles.eventDetailText}>
+              Description: {selectedEventDetails?.description || 'No Description'}
+            </Text>
+            <Text style={styles.eventDetailText}>
+              Place: {selectedEventDetails?.place || 'No Place'}
+            </Text>
+            <Text style={styles.eventDetailText}>
+              Date: {selectedDate || 'No Date Selected'}
+            </Text>
+            <Text style={styles.eventDetailText}>
+              Time: {selectedEventDetails?.time || 'No Time Selected'}
+            </Text>
+
+            {/* Event Image */}
+            <Image
+              source={require('../../assets/Diggy.png')} // Replace with your character image path
+              style={styles.eventCharacterImage}
+            />
+
+            {/* Delete Button in Bottom-Right */}
+            <TouchableOpacity
+              style={styles.eventDetailDeleteButton}
+              onPress={() => handleDeleteEvent(selectedDate, selectedEventDetails)}
+            >
+              <Text style={styles.eventDetailDeleteButtonText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+
+
+
+      <Modal
+        visible={isTimePickerVisible}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.timePickerModalOverlay}>
+          <View style={styles.timePickerModal}>
+            {/* Hours Input */}
+            <View style={styles.timePickerRow}>
+              <Text style={styles.timePickerLabel}>Hour:</Text>
+              <TextInput
+                style={styles.timeInput}
+                keyboardType="numeric"
+                maxLength={2} // Restrict input to 2 digits
+                value={selectedHour?.toString() || ''} // Display current hour or empty
+                onChangeText={(value) => {
+                  setSelectedHour(value); // Allow free input
+                }}
+                placeholder="HH"
+                placeholderTextColor="gray"
+              />
+            </View>
+
+            {/* Minutes Input */}
+            <View style={styles.timePickerRow}>
+              <Text style={styles.timePickerLabel}>Minutes:</Text>
+              <TextInput
+                style={styles.timeInput}
+                keyboardType="numeric"
+                maxLength={2} // Restrict input to 2 digits
+                value={selectedMinute?.toString() || ''} // Display current minutes or empty
+                onChangeText={(value) => {
+                  setSelectedMinute(value); // Allow free input
+                }}
+                placeholder="MM"
+                placeholderTextColor="gray"
+              />
+            </View>
+
+            <View style={styles.timePickerRow}>
+              <Text style={styles.timePickerLabel}>AM/PM:</Text>
+              <DropDownPicker
+                open={isDropdownOpen}
+                value={selectedPeriod} // Current value
+                items={[
+                  { label: 'AM', value: 'AM' },
+                  { label: 'PM', value: 'PM' },
+                ]}
+                setOpen={setIsDropdownOpen}
+                setValue={setSelectedPeriod}
+                setItems={setDropdownItems}
+                style={styles.timePickerDropdown}
+              />
+            </View>
+
+            {/* Save Button */}
+            <TouchableOpacity
+              style={styles.timePickerSaveButton}
+              onPress={() => handleSaveTime()}
+            >
+              <Text style={styles.timePickerSaveButtonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+
+
+
+
+
+
+
+
+    </ScrollView>);
+  };
+
+
+
 
 const styles = StyleSheet.create({
   scrollContainer: {
@@ -681,4 +1083,223 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  calendarButton: {
+    padding: 15,
+    backgroundColor: '#2F4F2F',
+    borderRadius: 10,
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+  calendarButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  CalendarmodalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  CalendarmodalContent: {
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+  },
+  CalendareventModalContent: {
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+  },
+  Calendarinput: {
+    
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+  },
+  CalendartimeButton: {
+    backgroundColor: '#ADD8E6',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  CalendartimeButtonText: {
+    color: 'white',
+    fontSize: 14,
+  },
+  CalendarsaveButton: {
+    backgroundColor: '#2F4F2F',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  CalendarsaveButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  CalendarcloseButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: '#2F4F2F',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  CalendarcloseButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  eventDetailModalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  eventDetailModal: {
+    width: '80%',
+    backgroundColor: '#fff', // White container
+    borderRadius: 15,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  eventDetailCloseButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'red',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  eventDetailCloseButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  eventDetailTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'green',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  eventDetailText: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  eventCharacterImage: {
+    width: 80,
+    height: 80,
+    marginTop: 10,
+    resizeMode: 'contain',
+  },
+  eventDetailDeleteButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: 'red',
+    paddingVertical: 5, // Reduced padding
+    paddingHorizontal: 5, // Reduced padding
+    borderRadius: 8, // Slightly smaller radius for a compact button
+    alignItems: 'center',
+  },
+  eventDetailDeleteButtonText: {
+    color: '#fff',
+    fontSize: 14, // Reduced font size
+    fontWeight: 'bold',
+  },
+  timePickerModalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  timePickerModal: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  wheelPicker: {
+    width: 100,
+    height: 150,
+  },
+  timePickerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+    width: '100%',
+  },
+  timePickerLabel: {
+    fontSize: 16,
+    color: '#333',
+    marginRight: 10,
+  },
+  timePicker: {
+    height: 50,
+    width: 100,
+    color: 'green', // Green text
+  },
+  timePickerSaveButton: {
+    marginTop: 20,
+    backgroundColor: 'green',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  timePickerSaveButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  timeInput: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
+    padding: 5,
+    width: 60, // Adjust width for input field
+    textAlign: 'center',
+    color: 'green',
+    fontSize: 16,
+  },
+  timePickerDropdown: {
+    width: 100,
+    backgroundColor: '#f0f0f0',
+    borderColor: 'gray',
+    borderRadius: 5,
+    padding: 10,
+    marginLeft: 105, // Add space to move it more to the right
+  },
+
+  
+
+
+
 });
+
