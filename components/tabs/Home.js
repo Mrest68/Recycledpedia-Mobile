@@ -167,7 +167,7 @@ export default function Home() {
 
       <View style={styles.container}>
         {/* Image */}
-        <Text style={styles.bigTitle}>Recyclopedia</Text>
+        <Text style={styles.bigTitle}>Recyclepedia</Text>
         {/* Main Title */}
         <Text style={styles.MediumTitle}>Waste Made Simple</Text>
         {/* Main Title */}
