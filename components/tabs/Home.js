@@ -6,6 +6,14 @@ import { BlurView } from '@react-native-community/blur';
 import { Calendar } from 'react-native-calendars';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { Timestamp } from "firebase/firestore";
+
+
+//this is to install firebase 
+
+import { firestore } from '../../config/firebaseConfig';
+import { collection, query, where, getDocs, onSnapshot, addDoc, getDoc, doc, deleteDoc } from 'firebase/firestore';
+
 
 
 
@@ -30,7 +38,6 @@ export default function Home() {
   const [eventTitle, setEventTitle] = useState('');
   const [eventDescription, setEventDescription] = useState('');
   const [eventTime, setEventTime] = useState(new Date());
-  const [eventPlace, setEventPlace] = useState('');
   const [events, setEvents] = useState({});
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
   const [displayEvents, setDisplayEvents] = useState({});
@@ -43,11 +50,16 @@ export default function Home() {
   const [isEventDetailModalVisible, setIsEventDetailModalVisible] = useState(false);
   const [selectedEventDetails, setSelectedEventDetails] = useState(null);
 
-  //adding this as weell brotha 
+  const combinedDateTime = new Date(selectedDate);
+  const safeSelectedDate = selectedDate || new Date().toISOString().split('T')[0];
+  //adding this as well brotha 
 
 
   // this is new
-
+  const [isHelloModalVisible, setIsHelloModalVisible] = useState(false);
+  const toggleHelloModal = () => {
+    setIsHelloModalVisible(!isHelloModalVisible);
+  };
 
 
 
@@ -116,23 +128,81 @@ export default function Home() {
 
 
 
+  // Real-time Firebase Updates
+  useEffect(() => {
+    const eventsCollection = collection(firestore, 'Events');
 
-  const handleDeleteEvent = (date, eventDetails) => {
-    setDisplayEvents((prev) => {
-      const updatedEvents = { ...prev };
-      updatedEvents[date] = updatedEvents[date]?.filter(
-        (event) => event.title !== eventDetails.title
-      );
-      if (updatedEvents[date]?.length === 0) {
-        delete updatedEvents[date]; // Remove the date if no events are left
-      }
-      return updatedEvents;
+    const unsubscribe = onSnapshot(eventsCollection, (snapshot) => {
+      const fetchedEvents = {};
+      snapshot.forEach((doc) => {
+        const event = doc.data();
+        console.log('Fetched Event:', event);
+        if (event.date) {
+          try {
+            // Convert Firebase timestamp to JavaScript Date
+            const eventDate = event.date.toDate(); // Convert timestamp to Date
+            const eventDateKey = eventDate.toISOString().split('T')[0];
+
+            if (!fetchedEvents[eventDateKey]) fetchedEvents[eventDateKey] = [];
+            fetchedEvents[eventDateKey].push({
+              id: doc.id,
+              ...event,
+              date: eventDate, // Use the converted Date object
+            });
+          } catch (error) {
+            console.error('Error processing datetime field:', doc.id, event, error);
+          }
+        } else {
+          console.error('Missing datetime field in event:', doc.id, event);
+        }
+
+      });
+      console.log('Processed Events:', fetchedEvents);
+      setDisplayEvents(fetchedEvents);
     });
 
-    // Close the modal
-    setIsEventDetailModalVisible(false);
+    return () => unsubscribe();
+  }, []);
 
-    Alert.alert('Event Deleted', 'The event has been removed from the calendar.');
+
+
+
+
+
+
+
+  // Delete Event from Firebase and Calendar
+  const handleDeleteEvent = async (date, eventDetails) => {
+    console.log('Deleting event for date:', date);
+    console.log('Event details:', eventDetails);
+
+    if (!date || !eventDetails.id) {
+      console.error('Invalid input:', { date, eventDetails });
+      Alert.alert('Error', 'Invalid event or date selected.');
+      return;
+    }
+
+    try {
+      // Remove from Firebase
+      const eventDoc = doc(firestore, 'Events', eventDetails.id);
+      await deleteDoc(eventDoc);
+
+      // Update local state
+      setDisplayEvents((prev) => {
+        const updatedEvents = { ...prev };
+        updatedEvents[date] = updatedEvents[date]?.filter((event) => event.id !== eventDetails.id);
+
+        if (!updatedEvents[date]?.length) delete updatedEvents[date];
+        console.log('Updated local events:', updatedEvents);
+        return updatedEvents;
+      });
+
+      setIsEventDetailModalVisible(false); // Close modal
+      Alert.alert('Success', 'Event deleted.');
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      Alert.alert('Error', 'Could not delete the event.');
+    }
   };
 
 
@@ -140,10 +210,13 @@ export default function Home() {
     setIsCalendarVisible(!isCalendarVisible);
   };
 
+  // Handle Day Selection
   const handleDayPress = (day) => {
+    console.log('Day pressed:', day.dateString);
     setSelectedDate(day.dateString);
     setIsEventModalVisible(true);
     const events = displayEvents[day.dateString];
+    console.log('Events for selected day:', events);
     if (events && events.length > 0) {
       setSelectedEventDetails(events[0]); // Assuming one event per date
       setIsEventDetailModalVisible(true); // Show modal
@@ -157,27 +230,67 @@ export default function Home() {
     setIsTimePickerVisible(false); // Close the picker
   };
 
-  const saveEvent = () => {
-    if (!eventTitle || !eventDescription || !eventPlace) {
+  // Save Event to Firebase and Calendar
+  const saveEvent = async () => {
+    if (!eventTitle || !eventDescription || !selectedDate) {
       Alert.alert('Error', 'Please fill out all fields.');
       return;
     }
 
-      const handleFocus = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({ y: 50, animated: true }); // Adjust to the necessary position
-    }
-  };
-    // setthe display event
+    try {
+      // Validate selectedDate
+      console.log('selectedDate:', selectedDate);
+      if (!selectedDate || isNaN(new Date(selectedDate).getTime())) {
+        console.error('Invalid selectedDate:', selectedDate);
+        Alert.alert('Error', 'Invalid date selected.');
+        return;
+      }
+
+      // Validate eventTime
+      if (!(eventTime instanceof Date && !isNaN(eventTime))) {
+        console.error('Invalid eventTime:', eventTime);
+        Alert.alert('Error', 'Invalid event time.');
+        return;
+      }
+
+      // Combine selectedDate and eventTime (preserve local timezone)
+      const [year, month, day] = selectedDate.split('-').map(Number); // Extract year, month, day
+      const combinedDateTime = new Date(
+        year,
+        month - 1, // JavaScript months are 0-indexed
+        day,
+        eventTime.getHours(),
+        eventTime.getMinutes()
+      );
+
+      console.log('Final Combined DateTime:', combinedDateTime);
+
+      const event = {
+        name: eventTitle,
+        description: eventDescription,
+        date: Timestamp.fromDate(combinedDateTime), // Convert to Firebase Timestamp
+      };
+      await addDoc(collection(firestore, 'Events'), event);
+      Alert.alert('Success', 'Event added to calendar!');
+
+      setEventTitle('');
+      setEventDescription('');
+      setEventTime(new Date());
+      setIsEventModalVisible(false);
+    } catch (error) {
+      console.error('Error saving event:', error);
+      Alert.alert('Error', 'Could not save the event.');
+    };
+
+    // set the display event
     setDisplayEvents((prev) => ({
       ...prev,
       [selectedDate]: [
         ...(prev[selectedDate] || []),
         {
-          title: eventTitle,
+          name: eventTitle,
           description: eventDescription,
-          time: eventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
-          place: eventPlace,
+          datetime: combinedDateTime.toISOString(),
         },
       ],
     }));
@@ -187,16 +300,14 @@ export default function Home() {
       [selectedDate]: [
         ...(prev[selectedDate] || []),
         {
-          title: eventTitle,
+          name: eventTitle,
           description: eventDescription,
-          time: eventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
-          place: eventPlace,
+          datetime: combinedDateTime.toISOString(),
         },
       ],
     }));
     setEventTitle('');
     setEventDescription('');
-    setEventPlace('');
     setEventTime(new Date());
     setIsEventModalVisible(false);
     Alert.alert('Success', 'Event added to calendar!');
@@ -221,7 +332,6 @@ export default function Home() {
       ).start();
     };
 
-
     //Diggy
     const startDiggyAnimation = () => {
       Animated.loop(
@@ -240,7 +350,6 @@ export default function Home() {
         ])
       ).start();
     };
-
 
     // Animation for Cloud 2 (with delay)
     const startCloud2Animation = () => {
@@ -287,6 +396,8 @@ export default function Home() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
+
+    
       
         
 
@@ -441,7 +552,7 @@ export default function Home() {
           <View style={styles.communityLeft}>
             <Text style={styles.communitySubtitle}>Community Calendar Header</Text>
             <Text style={styles.communityParagraph}>
-              Get involved with your comumunity and make a difference by exploring events, activities, and more!
+              Get involved with your community and make a difference by exploring events, activities, and more!
             </Text>
           </View>
         {/* Calendar View Placeholder */}
@@ -498,6 +609,56 @@ export default function Home() {
           </TouchableOpacity>
         </View>
 
+        <Modal
+          visible={isEventDetailModalVisible}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={styles.eventDetailModalOverlay}>
+            <View style={styles.eventDetailModal}>
+              {/* Close Button in Top-Right */}
+              <TouchableOpacity
+                style={styles.eventDetailCloseButton}
+                onPress={() => setIsEventDetailModalVisible(false)}
+              >
+                <Text style={styles.eventDetailCloseButtonText}>X</Text>
+              </TouchableOpacity>
+
+              {/* Event Details */}
+              <Text style={styles.eventDetailTitle}>
+                {selectedEventDetails?.name || 'No Title'}
+              </Text>
+
+              {/*Event Date & Time*/}
+              <Text style={styles.eventDetailText}>
+                Date: {selectedEventDetails?.date?.toLocaleString() || 'No Date/Time Available'}
+              </Text>
+
+              {/* Event Details */}
+              <Text style={styles.eventDetailText}>
+                Description: {selectedEventDetails?.description || 'No Description'}
+              </Text>
+
+              {/* Event Image */}
+              <Image
+                source={require('../../assets/Diggy.png')}
+                style={styles.eventCharacterImage}
+              />
+
+              {/* Delete Button in Bottom-Right */}
+              <TouchableOpacity
+                style={styles.eventDetailDeleteButton}
+                onPress={() => {
+                  console.log("Deleting Event:", { date: selectedEventDetails.date, eventDetails: selectedEventDetails });
+                  handleDeleteEvent(selectedEventDetails.date.toISOString().split('T')[0], selectedEventDetails);
+                }}
+              >
+                <Text style={styles.eventDetailDeleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
 
         <Modal visible={isEventModalVisible} transparent={true} animationType="slide">
           <BlurView style={styles.blurView} blurType="light" blurAmount={30} />
@@ -521,13 +682,6 @@ export default function Home() {
                 onChangeText={setEventDescription}
                 multiline
               />
-              <TextInput
-                style={styles.Calendarinput}
-                placeholder="Event Place"
-                placeholderTextColor="#888888" // Set the desired placeholder color
-                value={eventPlace}
-                onChangeText={setEventPlace}
-              />
 
                 {/* Calendar for Day Selection */}
                 <Calendar
@@ -541,18 +695,20 @@ export default function Home() {
               <Text style={[styles.dateText, { marginBottom: 10 }]}>
                   Selected Date: {selectedDate || 'None'}
                 </Text>
-
               
                 <Text style={[styles.inputlabel, { marginBottom: 10 }]}>
 
               Event Date: {selectedDate || 'None'}</Text>
+
               <TouchableOpacity
                 style={styles.CalendartimeButton}
                 onPress={() => setIsTimePickerVisible(true)}
               >
+
                 <Text style={styles.CalendartimeButtonText}>
                   Select Time: {eventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                 </Text>
+
               </TouchableOpacity>
 
                {/* Time Picker */}
@@ -566,154 +722,101 @@ export default function Home() {
                 />
             )}
 
-
-              
-
-
-
-
-
-
-
-
-
-            
               <TouchableOpacity style={styles.CalendarsaveButton} onPress={saveEvent}>
                 <Text style={styles.CalendarsaveButtonText}>Save Event</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.CalendarcloseButton} onPress={() => setIsEventModalVisible(false)}>
                 <Text style={styles.CalendarcloseButtonText}>X</Text>
               </TouchableOpacity>
+
+
+
+
+
+
+
+              
+
+
+              <Modal
+                visible={isTimePickerVisible}
+                transparent={true}
+                animationType="fade"
+              >
+                <View style={styles.timePickerModalOverlay}>
+                  <View style={styles.timePickerModal}>
+                    {/* Hours Input */}
+                    <View style={styles.timePickerRow}>
+                      <Text style={styles.timePickerLabel}>Hour:</Text>
+                      <TextInput
+                        style={styles.timeInput}
+                        keyboardType="numeric"
+                        maxLength={2} // Restrict input to 2 digits
+                        value={selectedHour?.toString() || ''} // Display current hour or empty
+                        onChangeText={(value) => {
+                          setSelectedHour(value); // Allow free input
+                        }}
+                        placeholder="HH"
+                        placeholderTextColor="gray"
+                      />
+                    </View>
+
+                    {/* Minutes Input */}
+                    <View style={styles.timePickerRow}>
+                      <Text style={styles.timePickerLabel}>Minutes:</Text>
+                      <TextInput
+                        style={styles.timeInput}
+                        keyboardType="numeric"
+                        maxLength={2} // Restrict input to 2 digits
+                        value={selectedMinute?.toString() || ''} // Display current minutes or empty
+                        onChangeText={(value) => {
+                          setSelectedMinute(value); // Allow free input
+                        }}
+                        placeholder="MM"
+                        placeholderTextColor="gray"
+                      />
+                    </View>
+
+                    <View style={styles.timePickerRow}>
+                      <Text style={styles.timePickerLabel}>AM/PM:</Text>
+                      <DropDownPicker
+                        open={isDropdownOpen}
+                        value={selectedPeriod} // Current value
+                        items={[
+                          { label: 'AM', value: 'AM' },
+                          { label: 'PM', value: 'PM' },
+                        ]}
+                        setOpen={setIsDropdownOpen}
+                        setValue={setSelectedPeriod}
+                        setItems={setDropdownItems}
+                        style={styles.timePickerDropdown}
+                      />
+                    </View>
+
+                    {/* Save Button */}
+                    <TouchableOpacity
+                      style={styles.timePickerSaveButton}
+                      onPress={() => handleSaveTime()}
+                    >
+                      <Text style={styles.timePickerSaveButtonText}>Save</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
+
+
+
+
+
+
             </View>
             </View>
+          
         </Modal>
       </Modal>
 
 
-      <Modal
-        visible={isEventDetailModalVisible}
-        transparent={true}
-        animationType="fade"
-      >
-        <View style={styles.eventDetailModalOverlay}>
-          <View style={styles.eventDetailModal}>
-            {/* Close Button in Top-Right */}
-            <TouchableOpacity
-              style={styles.eventDetailCloseButton}
-              onPress={() => setIsEventDetailModalVisible(false)}
-            >
-              <Text style={styles.eventDetailCloseButtonText}>X</Text>
-            </TouchableOpacity>
-
-            {/* Event Title */}
-            <Text style={styles.eventDetailTitle}>
-              {selectedEventDetails?.title || 'No Title'}
-            </Text>
-
-            {/* Event Details */}
-            <Text style={styles.eventDetailText}>
-              Description: {selectedEventDetails?.description || 'No Description'}
-            </Text>
-            <Text style={styles.eventDetailText}>
-              Place: {selectedEventDetails?.place || 'No Place'}
-            </Text>
-            <Text style={styles.eventDetailText}>
-              Date: {selectedDate || 'No Date Selected'}
-            </Text>
-            <Text style={styles.eventDetailText}>
-              Time: {selectedEventDetails?.time || 'No Time Selected'}
-            </Text>
-
-            {/* Event Image */}
-            <Image
-              source={require('../../assets/Diggy.png')} // Replace with your character image path
-              style={styles.eventCharacterImage}
-            />
-
-            {/* Delete Button in Bottom-Right */}
-            <TouchableOpacity
-              style={styles.eventDetailDeleteButton}
-              onPress={() => handleDeleteEvent(selectedDate, selectedEventDetails)}
-            >
-              <Text style={styles.eventDetailDeleteButtonText}>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-
-
-
-      <Modal
-        visible={isTimePickerVisible}
-        transparent={true}
-        animationType="fade"
-      >
-        <View style={styles.timePickerModalOverlay}>
-          <View style={styles.timePickerModal}>
-            {/* Hours Input */}
-            <View style={styles.timePickerRow}>
-              <Text style={styles.timePickerLabel}>Hour:</Text>
-              <TextInput
-                style={styles.timeInput}
-                keyboardType="numeric"
-                maxLength={2} // Restrict input to 2 digits
-                value={selectedHour?.toString() || ''} // Display current hour or empty
-                onChangeText={(value) => {
-                  setSelectedHour(value); // Allow free input
-                }}
-                placeholder="HH"
-                placeholderTextColor="gray"
-              />
-            </View>
-
-            {/* Minutes Input */}
-            <View style={styles.timePickerRow}>
-              <Text style={styles.timePickerLabel}>Minutes:</Text>
-              <TextInput
-                style={styles.timeInput}
-                keyboardType="numeric"
-                maxLength={2} // Restrict input to 2 digits
-                value={selectedMinute?.toString() || ''} // Display current minutes or empty
-                onChangeText={(value) => {
-                  setSelectedMinute(value); // Allow free input
-                }}
-                placeholder="MM"
-                placeholderTextColor="gray"
-              />
-            </View>
-
-            <View style={styles.timePickerRow}>
-              <Text style={styles.timePickerLabel}>AM/PM:</Text>
-              <DropDownPicker
-                open={isDropdownOpen}
-                value={selectedPeriod} // Current value
-                items={[
-                  { label: 'AM', value: 'AM' },
-                  { label: 'PM', value: 'PM' },
-                ]}
-                setOpen={setIsDropdownOpen}
-                setValue={setSelectedPeriod}
-                setItems={setDropdownItems}
-                style={styles.timePickerDropdown}
-              />
-            </View>
-
-            {/* Save Button */}
-            <TouchableOpacity
-              style={styles.timePickerSaveButton}
-              onPress={() => handleSaveTime()}
-            >
-              <Text style={styles.timePickerSaveButtonText}>Save</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-
-
-
-
+      
 
 
 
@@ -1296,6 +1399,8 @@ const styles = StyleSheet.create({
     padding: 10,
     marginLeft: 105, // Add space to move it more to the right
   },
+
+  
 
   
 
