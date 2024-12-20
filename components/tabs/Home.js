@@ -1281,21 +1281,22 @@ const styles = StyleSheet.create({
   },
   eventDetailCloseButton: {
     position: 'absolute',
-    top: 10,
-    right: 10,
+    top: 5, // Slightly closer to the edges
+    right: 5, // Slightly closer to the edges
     backgroundColor: 'red',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 20, // Reduced width
+    height: 20, // Reduced height
+    borderRadius: 10, // Adjusted for smaller size
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,
   },
   eventDetailCloseButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 12, // Reduced font size
     fontWeight: 'bold',
   },
+
   eventDetailTitle: {
     fontSize: 20,
     fontWeight: 'bold',
