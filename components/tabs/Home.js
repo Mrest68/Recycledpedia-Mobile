@@ -1,4 +1,4 @@
-import { Dimensions } from 'react-native';
+import { Dimensions, Button} from 'react-native';
 import React, { useState, useEffect, useRef, Easing } from 'react';
 import {
   View, Text, Image, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView, Animated, Pressable, Modal, KeyboardAvoidingView, Platform} from 'react-native';
@@ -15,7 +15,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 
 const { width, height } = Dimensions.get('window');
 
-export default function Home() {
+export default function Home({navigation}) {
   const [email, setEmail] = useState('');
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -380,7 +380,7 @@ export default function Home() {
           <View style={styles.blueBubble}>
             <View style={styles.whiteBubble} />
             <Text style={styles.bubbleText}>Curbside Pickup</Text>
-            <TouchableOpacity onPress={() => handleExplorePress('Explore Curbside Pickup')}>
+            <TouchableOpacity onPress={() => navigation.navigate("Curbside")}>
               <View style={styles.exploreBubble}>
                 <Text style={styles.exploreText}>Explore</Text>
               </View>
@@ -390,8 +390,8 @@ export default function Home() {
           {/* Second Bubble */}
           <View style={styles.blueBubble}>
             <View style={styles.whiteBubble} />
-            <Text style={styles.bubbleText}>Recyclable Items</Text>
-            <TouchableOpacity onPress={() => handleExplorePress('Explore Recyclable Items')}>
+            <Text style={styles.bubbleText}>Items</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Items")}>
               <View style={styles.exploreBubble}>
                 <Text style={styles.exploreText}>Explore</Text>
               </View>
@@ -402,7 +402,7 @@ export default function Home() {
           <View style={styles.blueBubble}>
             <View style={styles.whiteBubble} />
             <Text style={styles.bubbleText}>Learn</Text>
-            <TouchableOpacity onPress={() => handleExplorePress('Explore Learn')}>
+            <TouchableOpacity onPress={() => navigation.navigate("Learn")}>
               <View style={styles.exploreBubble}>
                 <Text style={styles.exploreText}>Explore</Text>
               </View>

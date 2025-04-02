@@ -508,7 +508,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: width > 400 ? 40 : 34,
     textAlign: 'center',
-    marginVertical: 20,
+    marginVertical: 40,
+    color:"#6ad04b",
   },
   searchBar: {
     height: 40,
